@@ -1,39 +1,36 @@
 trigger:
-- main  # Runs pipeline when changes are pushed to the main branch
+- main
 
 pool:
-  vmImage: 'ubuntu-latest'  # Run pipeline on an Ubuntu virtual machine
+  vmImage: 'ubuntu-latest'  # Use Ubuntu virtual machine
 
 steps:
-# Step 1: Checkout Code from GitHub
-- task: Checkout@1
+# Step 1: Checkout Code
+- checkout: self
   displayName: "Checkout Code"
 
-# Step 2: Install Python and Dependencies
-- task: UsePythonVersion@1
-  inputs:
-    versionSpec: '3.11'  # Match Azure Function runtime version
-    addToPath: true
-  displayName: "Install Python 3.11"
-
+# Step 2: Install Python 3.11 (Direct Script)
 - script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
+    sudo apt-get update
+    sudo apt-get install python3.11 python3.11-venv -y
+    python3.11 --version
+  displayName: "Install and Set Python 3.11"
+
+# Step 3: Install Dependencies
+- script: |
+    python3.11 -m pip install --upgrade pip
+    python3.11 -m pip install -r requirements.txt
   displayName: "Install Dependencies"
-
-# Step 3: Run Tests (Optional)
-- script: |
-    pytest
-  displayName: "Run Unit Tests"
 
 # Step 4: Deploy to Azure Functions
 - task: AzureFunctionApp@1
   inputs:
-    azureSubscription: '<Visual Studio Enterprise Subscription>'  # Service connection to Azure
+    azureSubscription: 'my-azure-service-connection'  # Replace with your service connection name
     appType: 'functionApp'
-    appName: '<nlp-feedback-api>'  # Replace with your function app name
+    appName: '<nlp-feedback-api>'  # Replace with your Function App name
     package: '$(System.DefaultWorkingDirectory)'
+  displayName: "Deploy to Azure Functions"
 
-# Step 5: Print Success Message
+# Step 5: Success Message
 - script: echo "Pipeline executed successfully!"
   displayName: "Finish"
