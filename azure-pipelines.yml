@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'  # Use Ubuntu virtual machine
+  name: 'agent'  # Use Ubuntu virtual machine
 
 steps:
 # Step 1: Checkout Code
